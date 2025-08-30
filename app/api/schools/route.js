@@ -11,11 +11,17 @@ export const config = {
 
 export async function GET() {
   try {
+    console.log('Fetching schools from database...');
     const schools = await query('SELECT * FROM schools ORDER BY id DESC');
+    console.log(`Successfully fetched ${schools.length} schools`);
     return NextResponse.json(schools);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to fetch schools' }, { status: 500 });
+    console.error('Database error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch schools', 
+      details: error.message,
+      code: error.code 
+    }, { status: 500 });
   }
 }
 
@@ -34,25 +40,55 @@ export async function POST(request) {
     let imagePath = null;
     
     if (imageFile && imageFile.size > 0) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const uploadPath = path.join(process.cwd(), 'public', 'schoolImages', fileName);
-      
-      await fs.promises.writeFile(uploadPath, buffer);
-      imagePath = fileName;
+      try {
+        const bytes = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        const fileName = `${Date.now()}-${imageFile.name.replace(/\s+/g, '_')}`;
+        
+        // For production deployment (Vercel), we might need to handle file uploads differently
+        // For now, let's store the image name but handle upload gracefully
+        if (typeof window === 'undefined') { // Server-side
+          try {
+            const uploadDir = path.join(process.cwd(), 'public', 'schoolImages');
+            await fs.promises.mkdir(uploadDir, { recursive: true });
+            
+            const uploadPath = path.join(uploadDir, fileName);
+            await fs.promises.writeFile(uploadPath, buffer);
+            imagePath = fileName;
+          } catch (fsError) {
+            console.warn('File system write failed (likely in serverless environment):', fsError.message);
+            // In serverless environments like Vercel, file system writes to /public don't persist
+            // You might want to use external storage like Cloudinary, AWS S3, etc.
+            imagePath = `fallback_${fileName}`;
+          }
+        }
+      } catch (fileError) {
+        console.error('File upload error:', fileError);
+        imagePath = null;
+      }
     }
 
-    await query(
+    console.log('Inserting school:', { name, address, city, state, contact, email_id, imagePath });
+    
+    const result = await query(
       'INSERT INTO schools (name, address, city, state, contact, image, email_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [name, address, city, state, contact, imagePath, email_id]
     );
     
-    return NextResponse.json({ message: 'School added successfully' });
+    console.log('School inserted successfully:', result);
+    
+    return NextResponse.json({ 
+      message: 'School added successfully',
+      id: result.insertId 
+    });
   } catch (error) {
     console.error('Error adding school:', error);
-    return NextResponse.json({ error: 'Failed to add school' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to add school',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      code: error.code 
+    }, { status: 500 });
   }
 }
 

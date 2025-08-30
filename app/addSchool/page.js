@@ -106,7 +106,7 @@ export default function AddSchool() {
                 <div className="flex items-center space-x-3 pb-4 border-b border-gray-100">
                   <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-2 rounded-lg">
                     <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H7m2 0v-4a2 2 0 012-2h2a2 0 012 2v4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H7m2 0v-4a2 2 0 012-2h2a2 2 0 012 2v4" />
                     </svg>
                   </div>
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-800">School Information</h2>
