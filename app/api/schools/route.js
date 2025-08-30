@@ -21,35 +21,25 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const formData = await request.formData();
+    const data = await request.json();
     
-    const name = formData.get('name');
-    const address = formData.get('address');
-    const city = formData.get('city');
-    const state = formData.get('state');
-    const contact = formData.get('contact');
-    const email_id = formData.get('email_id');
-    const imageFile = formData.get('image');
+    const { name, address, city, state, contact, email_id, image } = data;
 
-    let imagePath = null;
-    
-    if (imageFile && imageFile.size > 0) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const uploadPath = path.join(process.cwd(), 'public', 'schoolImages', fileName);
-      
-      await fs.promises.writeFile(uploadPath, buffer);
-      imagePath = fileName;
+    // Validate required fields
+    if (!name || !address || !city || !state || !contact || !email_id) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
-    await query(
+    // Insert school data with Cloudinary image URL
+    const result = await query(
       'INSERT INTO schools (name, address, city, state, contact, image, email_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, address, city, state, contact, imagePath, email_id]
+      [name, address, city, state, contact, image || null, email_id]
     );
     
-    return NextResponse.json({ message: 'School added successfully' });
+    return NextResponse.json({ 
+      message: 'School added successfully',
+      id: result.insertId 
+    }, { status: 201 });
   } catch (error) {
     console.error('Error adding school:', error);
     return NextResponse.json({ error: 'Failed to add school' }, { status: 500 });

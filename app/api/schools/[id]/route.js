@@ -26,23 +26,14 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = params;
     
-    // Get school data to delete associated image
+    // Check if school exists
     const school = await query('SELECT * FROM schools WHERE id = ?', [id]);
     if (school.length === 0) {
       return NextResponse.json({ error: 'School not found' }, { status: 404 });
     }
 
-    // Delete image file if it exists
-    if (school[0].image) {
-      const imagePath = path.join(process.cwd(), 'public', 'schoolImages', school[0].image);
-      try {
-        await fs.promises.unlink(imagePath);
-      } catch (error) {
-        console.log('Image file not found, continuing with database deletion...');
-      }
-    }
-
     // Delete school from database
+    // Note: Cloudinary images can be managed separately if needed
     await query('DELETE FROM schools WHERE id = ?', [id]);
     
     return NextResponse.json({ message: 'School deleted successfully' });
@@ -56,50 +47,28 @@ export async function DELETE(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const { id } = params;
-    const formData = await request.formData();
+    const data = await request.json();
     
-    // Get current school data to check for existing image
+    // Get current school data to check if it exists
     const currentSchool = await query('SELECT * FROM schools WHERE id = ?', [id]);
     if (currentSchool.length === 0) {
       return NextResponse.json({ error: 'School not found' }, { status: 404 });
     }
 
-    const name = formData.get('name');
-    const address = formData.get('address');
-    const city = formData.get('city');
-    const state = formData.get('state');
-    const contact = formData.get('contact');
-    const email_id = formData.get('email_id');
-    const imageFile = formData.get('image');
+    const { name, address, city, state, contact, email_id, image } = data;
 
-    let imagePath = currentSchool[0].image; // Keep existing image by default
-    
-    // If new image is provided, handle image upload
-    if (imageFile && imageFile.size > 0) {
-      // Delete old image if it exists
-      if (currentSchool[0].image) {
-        const oldImagePath = path.join(process.cwd(), 'public', 'schoolImages', currentSchool[0].image);
-        try {
-          await fs.promises.unlink(oldImagePath);
-        } catch (error) {
-          console.log('Old image not found, continuing...');
-        }
-      }
-
-      // Save new image
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const uploadPath = path.join(process.cwd(), 'public', 'schoolImages', fileName);
-      
-      await fs.promises.writeFile(uploadPath, buffer);
-      imagePath = fileName;
+    // Validate required fields
+    if (!name || !address || !city || !state || !contact || !email_id) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
+    // Use provided image URL or keep existing image
+    const imageUrl = image || currentSchool[0].image;
+
+    // Update school in database with Cloudinary image URL
     await query(
       'UPDATE schools SET name = ?, address = ?, city = ?, state = ?, contact = ?, image = ?, email_id = ? WHERE id = ?',
-      [name, address, city, state, contact, imagePath, email_id, id]
+      [name, address, city, state, contact, imageUrl, email_id, id]
     );
     
     return NextResponse.json({ message: 'School updated successfully' });

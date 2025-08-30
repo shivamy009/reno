@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { uploadImageToCloudinary } from '../../lib/cloudinary';
 
 const schema = yup.object({
   name: yup.string().required('School name is required'),
@@ -73,21 +74,34 @@ function EditSchoolForm() {
     setLoading(true);
     setMessage('');
     
-    const formData = new FormData();
-    Object.keys(data).forEach(key => {
-      if (key === 'image') {
-        if (data[key] && data[key][0]) {
-          formData.append(key, data[key][0]);
-        }
-      } else {
-        formData.append(key, data[key]);
-      }
-    });
-
     try {
+      let imageUrl = imagePreview; // Keep current image URL if no new image
+      
+      // Upload new image to Cloudinary if provided
+      if (data.image && data.image[0]) {
+        setMessage('Uploading new image...');
+        const imageResult = await uploadImageToCloudinary(data.image[0]);
+        imageUrl = imageResult.url;
+      }
+
+      // Prepare data for API
+      const schoolData = {
+        name: data.name,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        contact: data.contact,
+        email_id: data.email_id,
+        image: imageUrl,
+      };
+
+      setMessage('Updating school data...');
       const response = await fetch(`/api/schools/${data.id}`, {
         method: 'PATCH',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(schoolData),
       });
 
       if (response.ok) {
@@ -101,7 +115,7 @@ function EditSchoolForm() {
       }
     } catch (error) {
       console.error('Error updating school:', error);
-      setMessage('Network error occurred.');
+      setMessage('Failed to upload image or update school data. Please try again.');
     } finally {
       setLoading(false);
     }

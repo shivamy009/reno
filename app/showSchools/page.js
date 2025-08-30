@@ -49,7 +49,7 @@ function SchoolModal({ school, isOpen, onClose }) {
           {school.image && (
             <div className="h-32 sm:h-40 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-2xl">
               <img 
-                src={`/schoolImages/${school.image}`} 
+                src={school.image} 
                 alt={school.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -405,7 +405,7 @@ export default function ShowSchools() {
                 <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                   {school.image ? (
                     <img 
-                      src={`/schoolImages/${school.image}`} 
+                      src={school.image} 
                       alt={school.name} 
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       onError={(e) => {
