@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 const schema = yup.object({
   name: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
-  address: yup.string().required('Address is required').min(10, 'Please provide a complete address'),
+  address: yup.string().required('Address is required'),
   city: yup.string().required('City is required'),
   state: yup.string().required('State is required'),
   contact: yup.string().matches(/^\d{10,15}$/, 'Contact must be 10-15 digits').required('Contact is required'),
@@ -119,7 +119,7 @@ export default function AddSchool() {
                   </label>
                   <input 
                     {...register('name')} 
-                    className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg"
+                    className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg text-gray-900"
                     placeholder="Enter the full school name"
                   />
                   {errors.name && (
@@ -140,7 +140,7 @@ export default function AddSchool() {
                   <textarea 
                     {...register('address')} 
                     rows={4}
-                    className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 resize-none text-lg"
+                    className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 resize-none text-lg text-gray-900"
                     placeholder="Enter the complete school address with landmarks if any"
                   />
                   {errors.address && (
@@ -161,7 +161,7 @@ export default function AddSchool() {
                     </label>
                     <input 
                       {...register('city')} 
-                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg"
+                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg text-gray-900"
                       placeholder="Enter city name"
                     />
                     {errors.city && (
@@ -180,7 +180,7 @@ export default function AddSchool() {
                     </label>
                     <input 
                       {...register('state')} 
-                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg"
+                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg text-gray-900"
                       placeholder="Enter state name"
                     />
                     {errors.state && (
@@ -215,7 +215,7 @@ export default function AddSchool() {
                     <input 
                       {...register('contact')} 
                       type="tel"
-                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg"
+                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg text-gray-900"
                       placeholder="Enter 10-15 digit phone number"
                     />
                     {errors.contact && (
@@ -235,7 +235,7 @@ export default function AddSchool() {
                     <input 
                       {...register('email_id')} 
                       type="email" 
-                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg"
+                      className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-lg text-gray-900"
                       placeholder="Enter official email address"
                     />
                     {errors.email_id && (

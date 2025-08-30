@@ -182,6 +182,45 @@ export default function ShowSchools() {
     setTimeout(() => setSelectedSchool(null), 200);
   };
 
+  const handleEdit = (school) => {
+    // Redirect to edit page with school data
+    const params = new URLSearchParams({
+      id: school.id,
+      name: school.name,
+      address: school.address,
+      city: school.city,
+      state: school.state,
+      contact: school.contact,
+      email_id: school.email_id,
+      image: school.image || ''
+    });
+    window.location.href = `/editSchool?${params.toString()}`;
+  };
+
+  const handleDelete = async (schoolId, schoolName) => {
+    if (!confirm(`Are you sure you want to delete "${schoolName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/schools/${schoolId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove the school from the local state
+        setSchools(schools.filter(school => school.id !== schoolId));
+        alert('School deleted successfully!');
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to delete school');
+      }
+    } catch (error) {
+      console.error('Error deleting school:', error);
+      alert('Network error occurred while deleting school');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -298,7 +337,7 @@ export default function ShowSchools() {
                   placeholder="Search schools, cities..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-80 px-4 py-3 pl-12 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                  className="w-full sm:w-80 px-4 py-3 pl-12 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm text-gray-900"
                 />
                 <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -417,6 +456,34 @@ export default function ShowSchools() {
                       </svg>
                       <span className="text-xs font-medium text-green-600">Contact Available</span>
                     </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(school);
+                      }}
+                      className="flex items-center px-3 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(school.id, school.name);
+                      }}
+                      className="flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
