@@ -52,7 +52,7 @@ function EditSchoolForm() {
       setValue('email_id', email_id || '');
       
       if (image) {
-        setImagePreview(`/schoolImages/${image}`);
+        setImagePreview(image);
       }
     } else {
       router.push('/showSchools');
